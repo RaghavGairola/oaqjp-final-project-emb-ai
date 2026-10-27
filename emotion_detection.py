@@ -1,4 +1,5 @@
 import requests
+import json
 
 def emotion_detector(text_to_analyze):
     # URL of the emotion detection service
@@ -9,4 +10,11 @@ def emotion_detector(text_to_analyze):
     header = {"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}
     # Sending a POST request to the emotion detection API
     response = requests.post(url, json=myobj, headers=header)
-    return response.text
+    # Parsing the JSON response from the API
+    formatted_response = json.loads(response.text)
+    # Extracting set of emotions with thier score from the response
+    emotions = formatted_response['emotionPredictions'][0]['emotion']
+    dominant_emotion = max(emotions.items(), key=lambda e: e[1])
+    emotions['dominant_emotion'] = dominant_emotion[0]
+    # Returning a dictionary containing sentiment analysis results
+    return emotions
